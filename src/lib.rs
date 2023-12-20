@@ -1,4 +1,4 @@
-use std::{fs::File, pin};
+use std::fs::File;
 /*
 https://learn.microsoft.com/en-us/windows/win32/fileio/file-attribute-constants
 */
@@ -283,13 +283,13 @@ impl Props {
     pub fn is_archive(&self) -> bool {
         self.archive
     }
-    pub fn archive(&mut self, _archive: bool) -> Result<(), ()>{
+    pub fn archive(&mut self, _archive: bool) -> Result<(), ()> {
         todo!()
     }
     pub fn is_directory(&self) -> bool {
         self.read_only
     }
-    pub fn directory(&mut self, _directory: bool) -> Result<(), ()>{
+    pub fn directory(&mut self, _directory: bool) -> Result<(), ()> {
         todo!()
     }
     pub fn is_device(&self) -> bool {
@@ -402,7 +402,7 @@ impl Props {
     }
 }
 impl Default for Props {
-fn default() -> Self {
+    fn default() -> Self {
         Self::new()
     }
 }
