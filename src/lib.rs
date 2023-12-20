@@ -1,5 +1,7 @@
 use std::fs::File;
-
+/*
+https://learn.microsoft.com/en-us/windows/win32/fileio/file-attribute-constants
+*/
 pub struct Props {
     read_only: bool,
     hidden: bool,
