@@ -1,4 +1,9 @@
-use std::fs::File;
+#[cfg(not(windows))]
+compile_error!("This library is only supports Windows!");
+#[cfg(test)]
+mod tests; 
+
+use std::{os::windows::prelude::*, path::PathBuf};
 /*
 https://learn.microsoft.com/en-us/windows/win32/fileio/file-attribute-constants
 */
@@ -57,6 +62,14 @@ impl Props {
         }
     }
     pub fn from_number(props: u32) -> Self {
+        /*
+            All of this left/right shift operations because
+            Windows gives files properties in integer form
+            Here is needed to check if a specific bit is a 1
+            I make a copy of the properties, if the number 
+            after a right shift and then a left one is equal to the
+            clone that means there was a 0 there. Otherwise, there was a 1
+         */
         let mut props = props;
         let mut clone = props;
         let mut read_only = false;
@@ -259,8 +272,9 @@ impl Props {
             summarized: false,
         }
     }
-    pub fn from_file(_file: &File) -> Self {
-        todo!()
+    pub fn from_file(file: &PathBuf) -> Self {
+        let metadata = std::fs::metadata(file.clone()).unwrap();
+        Self::from_number(metadata.file_attributes())
     }
     pub fn is_read_only(&self) -> bool {
         self.read_only
@@ -404,14 +418,5 @@ impl Props {
 impl Default for Props {
     fn default() -> Self {
         Self::new()
-    }
-}
-#[cfg(test)]
-mod tests {
-    use crate::Props;
-
-    #[test]
-    fn test_basic() {
-        assert_eq!(Props::from_number(0), Props::default());
     }
 }
