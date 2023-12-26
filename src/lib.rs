@@ -414,6 +414,9 @@ impl Props {
     pub fn summarized(&mut self, summarized: bool) {
         self.summarized = summarized;
     }
+    pub fn as_number(&self) -> u32 {
+        0
+    }
 }
 impl Default for Props {
     fn default() -> Self {
