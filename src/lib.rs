@@ -272,9 +272,8 @@ impl Props {
         }
     }
     pub fn from_file(file: &PathBuf) -> Result<Self> {
-        let metadata: Metadata ;
-        match std::fs::metadata(file.clone()) {
-            Ok(obtained_metadata) => metadata = obtained_metadata,
+        let metadata: Metadata = match std::fs::metadata(file.clone()) {
+            Ok(obtained_metadata) => obtained_metadata,
             Err(_) => return Err(Error { kind: ErrorKind::FileNotFound })
         };
         Ok(Self::from_number(metadata.file_attributes()))
