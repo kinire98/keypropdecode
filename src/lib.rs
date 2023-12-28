@@ -2,8 +2,10 @@
 compile_error!("This library is only supports Windows!");
 #[cfg(test)]
 mod tests; 
-
-use std::{os::windows::prelude::*, path::PathBuf};
+mod implementations;
+mod error;
+use error::*;
+use std::{os::windows::prelude::*, path::PathBuf, fs::Metadata};
 /*
 https://learn.microsoft.com/en-us/windows/win32/fileio/file-attribute-constants
 */
@@ -31,7 +33,6 @@ pub struct Props {
     unpinned: bool,              // 1048576 -> bit 21
     recall_on_open: bool,        // 262144 -> bit 22
     recall_on_data_access: bool, // 4194304 -> bit 23
-    summarized: bool,
 }
 impl Props {
     pub fn new() -> Self {
@@ -58,7 +59,6 @@ impl Props {
             unpinned: false,
             recall_on_open: false,
             recall_on_data_access: false,
-            summarized: false,
         }
     }
     pub fn from_number(props: u32) -> Self {
@@ -269,12 +269,15 @@ impl Props {
             unpinned,
             recall_on_open,
             recall_on_data_access,
-            summarized: false,
         }
     }
-    pub fn from_file(file: &PathBuf) -> Self {
-        let metadata = std::fs::metadata(file.clone()).unwrap();
-        Self::from_number(metadata.file_attributes())
+    pub fn from_file(file: &PathBuf) -> Result<Self> {
+        let metadata: Metadata ;
+        match std::fs::metadata(file.clone()) {
+            Ok(obtained_metadata) => metadata = obtained_metadata,
+            Err(_) => return Err(Error { kind: ErrorKind::FileNotFound })
+        };
+        Ok(Self::from_number(metadata.file_attributes()))
     }
     pub fn is_read_only(&self) -> bool {
         self.read_only
@@ -297,14 +300,34 @@ impl Props {
     pub fn is_archive(&self) -> bool {
         self.archive
     }
-    pub fn archive(&mut self, _archive: bool) -> Result<(), ()> {
-        todo!()
+    pub fn archive(&mut self, archive: bool) -> Result<()> {
+        match (archive, self.directory) {
+            (true, true) => Err(Error { kind: ErrorKind::ConflictingFlags }),
+            (true, false) => {
+                self.archive = true;
+                Ok(())
+            },
+            (false, _) => {
+                self.archive = false;
+                Ok(())
+            }
+        }
     }
     pub fn is_directory(&self) -> bool {
         self.read_only
     }
-    pub fn directory(&mut self, _directory: bool) -> Result<(), ()> {
-        todo!()
+    pub fn directory(&mut self, directory: bool) -> Result<()> {
+        match (directory, self.archive) {
+            (true, true) => Err(Error { kind: ErrorKind::ConflictingFlags }),
+            (true, false) => {
+                self.directory = true;
+                Ok(())
+            },
+            (false, _) => {
+                self.directory = false;
+                Ok(())
+            }
+        }
     }
     pub fn is_device(&self) -> bool {
         self.device
@@ -408,18 +431,75 @@ impl Props {
     pub fn recall_on_data_access(&mut self, recall_on_data_access: bool) {
         self.recall_on_data_access = recall_on_data_access;
     }
-    pub fn is_summarized(&self) -> bool {
-        self.summarized
-    }
-    pub fn summarized(&mut self, summarized: bool) {
-        self.summarized = summarized;
-    }
     pub fn as_number(&self) -> u32 {
-        0
+        let mut result = 0;
+        if self.read_only {
+            result += 0b1;
+        }
+        if self.hidden {
+            result += 1 << 1;
+        }
+        if self.system {
+            result += 1 << 2;
+        }
+        if self.directory {
+            result += 1 << 4;
+        }
+        if self.archive {
+            result += 1 << 5;
+        }
+        if self.device {
+            result += 1 << 6;
+        }
+        if self.normal {
+            result += 1 << 7;
+        }
+        if self.temporary {
+            result += 1 << 8;
+        }
+        if self.sparse {
+            result += 1 << 9;
+        }
+        if self.reparse {
+            result += 1 << 10;
+        }
+        if self.compressed {
+            result += 1 << 11;
+        }
+        if self.offline {
+            result += 1 << 12;
+        }
+        if self.not_content_indexed {
+            result += 1 << 13;
+        }
+        if self.encrypted {
+            result += 1 << 14;
+        }
+        if self.integrity_stream {
+            result += 1 << 15;
+        }
+        if self.virtual_file {
+            result += 1 << 16;
+        }
+        if self.no_scrub_data {
+            result += 1 << 17;
+        }
+        if self.extended_attributes {
+            result += 1 << 18;
+        }
+        if self.pinned {
+            result += 1 << 19;
+        }
+        if self.unpinned {
+            result += 1 << 20;
+        }
+        if self.recall_on_open {
+            result += 1 << 21;
+        }
+        if self.recall_on_data_access {
+            result += 1 << 22;
+        }
+        result
     }
 }
-impl Default for Props {
-    fn default() -> Self {
-        Self::new()
-    }
-}
+
