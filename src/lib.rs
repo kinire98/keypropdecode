@@ -1,14 +1,21 @@
+
+//! # keypropdecode
+//! This crate gives you a handy struct to manage Windows file system elements properties.  
+//! The different constants are defined in [Microsoft File Attributes Constants Documentation](https://learn.microsoft.com/en-us/windows/win32/fileio/file-attribute-constants).
+
+
 #[cfg(not(windows))]
 compile_error!("This library is only supports Windows!");
 #[cfg(test)]
 mod tests; 
-mod implementations;
-mod error;
+pub mod implementations;
+pub mod error;
 use error::*;
 use std::{os::windows::prelude::*, path::PathBuf, fs::Metadata};
-/*
-https://learn.microsoft.com/en-us/windows/win32/fileio/file-attribute-constants
-*/
+
+
+
+/// This struct is the one that gives you the desired behaviour.
 #[derive(Debug, PartialEq, PartialOrd, Eq, Ord, Clone, Copy)]
 pub struct Props {
     read_only: bool,             // 1 -> bit 1
@@ -35,6 +42,7 @@ pub struct Props {
     recall_on_data_access: bool, // 4194304 -> bit 23
 }
 impl Props {
+    /// Returns an empty instance of the struct which you can personalize as you please.
     pub fn new() -> Self {
         Props {
             read_only: false,
@@ -61,6 +69,7 @@ impl Props {
             recall_on_data_access: false,
         }
     }
+    /// Returns an instance of the object with the file system element correct properties parting from the unsigned 32-bit integer that the OS gives you.
     pub fn from_number(props: u32) -> Self {
         /*
             All of this left/right shift operations because
@@ -271,6 +280,8 @@ impl Props {
             recall_on_data_access,
         }
     }
+    /// Same as the previous constructor, but you have to provide a valid reference to a PathBuf.
+    /// This saves you the effort from obtaining the metadata manually. You can also forget about importing the correct libraries.
     pub fn from_file(file: &PathBuf) -> Result<Self> {
         let metadata: Metadata = match std::fs::metadata(file.clone()) {
             Ok(obtained_metadata) => obtained_metadata,
@@ -278,27 +289,66 @@ impl Props {
         };
         Ok(Self::from_number(metadata.file_attributes()))
     }
+    /// Returns true if the element is read_only.
+    /// ```
+    /// let mut props = keypropdecode::Props::default();
+    /// props.read_only(true);
+    /// 
+    /// assert_eq!(props.is_read_only(), true);
+    /// ```
     pub fn is_read_only(&self) -> bool {
         self.read_only
     }
+    /// Allows to change the read_only state.
     pub fn read_only(&mut self, read_only: bool) {
         self.read_only = read_only;
     }
+    /// Returns true if the element is hidden.
+    /// ```
+    /// let mut props = keypropdecode::Props::default();
+    /// props.hidden(true);
+    /// 
+    /// assert_eq!(props.is_hidden(), true);
+    /// ```
     pub fn is_hidden(&self) -> bool {
         self.hidden
     }
+    /// Allows to change the hidden state.
     pub fn hidden(&mut self, hidden: bool) {
         self.hidden = hidden;
     }
+    /// Returns true if the element is used for system purposes.
+    /// ```
+    /// let mut props = keypropdecode::Props::default();
+    /// props.system(true);
+    /// 
+    /// assert_eq!(props.is_system(), true);
+    /// ```
     pub fn is_system(&self) -> bool {
         self.system
     }
+    /// Allows to change the system state.
     pub fn system(&mut self, system: bool) {
         self.system = system;
     }
+    /// Returns true if the element is a file.
+    /// ```
+    /// let mut props = keypropdecode::Props::default();
+    /// props.archive(true).unwrap();
+    /// 
+    /// assert_eq!(props.is_archive(), true);
+    /// ```
     pub fn is_archive(&self) -> bool {
         self.archive
     }
+    /// Allows to change the state archive state.
+    /// It performs some error checking in order to prevent that a struct can be a directory and an archive at the same time.
+    /// ```
+    /// use keypropdecode::error::*;
+    /// let mut props = keypropdecode::Props::default(); 
+    /// props.archive(true).unwrap();
+    /// assert_eq!(props.directory(true), Err( Error { kind: ErrorKind::ConflictingFlags }) );
+    /// ```
     pub fn archive(&mut self, archive: bool) -> Result<()> {
         match (archive, self.directory) {
             (true, true) => Err(Error { kind: ErrorKind::ConflictingFlags }),
@@ -312,9 +362,24 @@ impl Props {
             }
         }
     }
+    /// Returns true if the element is a folder.
+    /// ```
+    /// let mut props = keypropdecode::Props::default();
+    /// props.directory(true).unwrap();
+    /// 
+    /// assert_eq!(props.is_directory(), true);
+    /// ```
     pub fn is_directory(&self) -> bool {
-        self.read_only
+        self.directory
     }
+    /// Allows to change the directory state.
+    /// It performs some error checking in order to prevent that a struct can be a directory and an archive at the same time.
+    /// ```
+    /// use keypropdecode::error::*;
+    /// let mut props = keypropdecode::Props::default(); 
+    /// props.directory(true);
+    /// assert_eq!(props.archive(true), Err( Error { kind: ErrorKind::ConflictingFlags }) );
+    /// ```
     pub fn directory(&mut self, directory: bool) -> Result<()> {
         match (directory, self.archive) {
             (true, true) => Err(Error { kind: ErrorKind::ConflictingFlags }),
@@ -328,36 +393,88 @@ impl Props {
             }
         }
     }
+    /// Returns true if the element represents a physical device in the file system.
+    /// ```
+    /// let mut props = keypropdecode::Props::default();
+    /// props.device(true);
+    /// 
+    /// assert_eq!(props.is_device(), true);
+    /// ```
     pub fn is_device(&self) -> bool {
         self.device
     }
+    /// Allows to change the device state.
+    /// (Proceed with caution because this is usually handled by the OS)
     pub fn device(&mut self, device: bool) {
         self.device = device;
     }
+    /// Returns true if the element represents a normal file (a file that doesn't have any properties except being a file(check docs for more info)).
+    /// ```
+    /// let mut props = keypropdecode::Props::default();
+    /// props.normal(true);
+    /// 
+    /// assert_eq!(props.is_normal(), true);
+    /// ```
     pub fn is_normal(&self) -> bool {
         self.normal
     }
+    /// Allows to change the normal state.
+    /// (Proceed with caution because this is usually handled by the OS)
     pub fn normal(&mut self, normal: bool) {
         self.normal = normal;
     }
+    /// Returns true if the element represents a temporary file.
+    /// ```
+    /// let mut props = keypropdecode::Props::default();
+    /// props.temporary(true);
+    /// 
+    /// assert_eq!(props.is_temporary(), true);
+    /// ```
     pub fn is_temporary(&self) -> bool {
         self.temporary
     }
+    /// Allows to change the temporary state
+    /// (Proceed with caution because this is usually handled by the OS)
     pub fn temporary(&mut self, temporary: bool) {
         self.temporary = temporary;
     }
+    /// Returns true if the element represents a sparse file (made small for space saving purposes).
+    /// ```
+    /// let mut props = keypropdecode::Props::default();
+    /// props.device(true);
+    /// 
+    /// assert_eq!(props.is_device(), true);
+    /// ```
     pub fn is_sparse(&self) -> bool {
         self.sparse
     }
+    /// Allows to change the sparse state.
+    /// (Proceed with caution because this is usually handled by the OS)
     pub fn sparse(&mut self, sparse: bool) {
         self.sparse = sparse;
     }
+    /// Returns true if the element represents a reparse point in the file system (e.g. a symbolic link).
+    /// ```
+    /// let mut props = keypropdecode::Props::default();
+    /// props.device(true);
+    /// 
+    /// assert_eq!(props.is_device(), true);
+    /// ```
     pub fn is_reparse(&self) -> bool {
         self.reparse
     }
+    /// Allows to change the reparse state.
+    /// (Proceed with caution because this is usually handled by the OS)
     pub fn reparse(&mut self, reparse: bool) {
         self.reparse = reparse;
     }
+    /// Returns true if the element represents a compressed file
+    /// ```
+    /// let mut props = keypropdecode::Props::default();
+    /// props.compressed(true);
+    /// 
+    /// assert_eq!(props.is_compressed(), true);
+    /// ```
     pub fn is_compressed(&self) -> bool {
         self.compressed
     }
