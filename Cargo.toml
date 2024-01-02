@@ -1,9 +1,9 @@
 [package]
 name = "keypropdecode"
-version = "0.0.0"
+version = "0.1.0"
 edition = "2021"
 authors = ["kinire98"]
-description = "Reserved"
+description = "A library for decoding Windows file system elements attributes constants"
 license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
