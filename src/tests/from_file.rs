@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
-use crate::Props;
 use crate::error::*;
+use crate::Props;
 
 #[test]
 fn basic_functionality() {
@@ -19,5 +19,10 @@ fn file_does_not_exist() {
 #[test]
 fn correct_error() {
     let non_existent_path = PathBuf::from("doesn't_exists.txt");
-    assert_eq!(Props::from_file(&non_existent_path),  Err(Error { kind: ErrorKind::FileNotFound }))
+    assert_eq!(
+        Props::from_file(&non_existent_path),
+        Err(Error {
+            kind: ErrorKind::FileNotFound
+        })
+    )
 }

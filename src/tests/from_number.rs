@@ -1,10 +1,9 @@
-
 use crate::Props;
 #[test]
 fn test_basic() {
     assert_eq!(Props::from_number(0), Props::default());
 }
-#[test] 
+#[test]
 fn read_only() {
     let mut read_only = Props::default();
     read_only.read_only(true);
@@ -19,7 +18,7 @@ fn hidden() {
 #[test]
 fn system() {
     let mut system = Props::default();
-    system.system(true);
+    system._system(true);
     assert_eq!(Props::from_number(1 << 2), system);
 }
 #[test]
@@ -37,7 +36,7 @@ fn archive() {
 #[test]
 fn device() {
     let mut device = Props::default();
-    device.device(true);
+    device._device(true);
     assert_eq!(Props::from_number(1 << 6), device);
 }
 #[test]
@@ -78,7 +77,7 @@ fn offline() {
 }
 #[test]
 fn not_content_indexed() {
-    let mut not_content_indexed= Props::default();
+    let mut not_content_indexed = Props::default();
     not_content_indexed.not_content_indexed(true);
     assert_eq!(Props::from_number(1 << 13), not_content_indexed);
 }
@@ -97,7 +96,7 @@ fn integrity_stream() {
 #[test]
 fn virtual_file() {
     let mut virtual_file = Props::default();
-    virtual_file.virtual_file(true);
+    virtual_file._virtual_file(true);
     assert_eq!(Props::from_number(1 << 16), virtual_file);
 }
 #[test]
@@ -109,7 +108,7 @@ fn no_scrub_data() {
 #[test]
 fn extended_attributes() {
     let mut extended_attributes = Props::default();
-    extended_attributes.extended_attributes(true);
+    extended_attributes._extended_attributes(true);
     assert_eq!(Props::from_number(1 << 18), extended_attributes);
 }
 #[test]

@@ -1,19 +1,15 @@
-
 //! # keypropdecode
 //! This crate gives you a handy struct to manage Windows file system elements properties.  
 //! The different constants are defined in [Microsoft File Attributes Constants Documentation](https://learn.microsoft.com/en-us/windows/win32/fileio/file-attribute-constants).
 
-
 #[cfg(not(windows))]
 compile_error!("This library is only supports Windows!");
-#[cfg(test)]
-mod tests; 
-pub mod implementations;
 pub mod error;
+pub mod implementations;
+#[cfg(test)]
+mod tests;
 use error::*;
-use std::{os::windows::prelude::*, path::PathBuf, fs::Metadata};
-
-
+use std::{fs::Metadata, os::windows::prelude::*, path::PathBuf};
 
 /// This struct is the one that gives you the desired behaviour.
 #[derive(Debug, PartialEq, PartialOrd, Eq, Ord, Clone, Copy)]
@@ -72,13 +68,13 @@ impl Props {
     /// Returns an instance of the object with the file system element correct properties parting from the unsigned 32-bit integer that the OS gives you.
     pub fn from_number(props: u32) -> Self {
         /*
-            All of this left/right shift operations because
-            Windows gives files properties in integer form
-            Here is needed to check if a specific bit is a 1
-            I make a copy of the properties, if the number 
-            after a right shift and then a left one is equal to the
-            clone that means there was a 0 there. Otherwise, there was a 1
-         */
+           All of this left/right shift operations because
+           Windows gives files properties in integer form
+           Here is needed to check if a specific bit is a 1
+           I make a copy of the properties, if the number
+           after a right shift and then a left one is equal to the
+           clone that means there was a 0 there. Otherwise, there was a 1
+        */
         let mut props = props;
         let mut clone = props;
         let mut read_only = false;
@@ -285,21 +281,25 @@ impl Props {
     pub fn from_file(file: &PathBuf) -> Result<Self> {
         let metadata: Metadata = match std::fs::metadata(file.clone()) {
             Ok(obtained_metadata) => obtained_metadata,
-            Err(_) => return Err(Error { kind: ErrorKind::FileNotFound })
+            Err(_) => {
+                return Err(Error {
+                    kind: ErrorKind::FileNotFound,
+                })
+            }
         };
         Ok(Self::from_number(metadata.file_attributes()))
     }
-    /// Returns true if the element is read_only.
+    /// Returns true if the element is read_only. Not available on folders.
     /// ```
     /// let mut props = keypropdecode::Props::default();
     /// props.read_only(true);
-    /// 
+    ///
     /// assert_eq!(props.is_read_only(), true);
     /// ```
     pub fn is_read_only(&self) -> bool {
         self.read_only
     }
-    /// Allows to change the read_only state.
+    /// Allows to change the read_only state. Not available on folder.
     pub fn read_only(&mut self, read_only: bool) {
         self.read_only = read_only;
     }
@@ -307,7 +307,7 @@ impl Props {
     /// ```
     /// let mut props = keypropdecode::Props::default();
     /// props.hidden(true);
-    /// 
+    ///
     /// assert_eq!(props.is_hidden(), true);
     /// ```
     pub fn is_hidden(&self) -> bool {
@@ -319,23 +319,21 @@ impl Props {
     }
     /// Returns true if the element is used for system purposes.
     /// ```
-    /// let mut props = keypropdecode::Props::default();
-    /// props.system(true);
-    /// 
+    /// let mut props = keypropdecode::Props::from_number(0x4);
+    ///
     /// assert_eq!(props.is_system(), true);
     /// ```
     pub fn is_system(&self) -> bool {
         self.system
     }
-    /// Allows to change the system state.
-    pub fn system(&mut self, system: bool) {
+    fn _system(&mut self, system: bool) {
         self.system = system;
     }
     /// Returns true if the element is a file.
     /// ```
     /// let mut props = keypropdecode::Props::default();
     /// props.archive(true).unwrap();
-    /// 
+    ///
     /// assert_eq!(props.is_archive(), true);
     /// ```
     pub fn is_archive(&self) -> bool {
@@ -345,17 +343,19 @@ impl Props {
     /// It performs some error checking in order to prevent that a struct can be a directory and an archive at the same time.
     /// ```
     /// use keypropdecode::error::*;
-    /// let mut props = keypropdecode::Props::default(); 
+    /// let mut props = keypropdecode::Props::default();
     /// props.archive(true).unwrap();
     /// assert_eq!(props.directory(true), Err( Error { kind: ErrorKind::ConflictingFlags }) );
     /// ```
     pub fn archive(&mut self, archive: bool) -> Result<()> {
         match (archive, self.directory) {
-            (true, true) => Err(Error { kind: ErrorKind::ConflictingFlags }),
+            (true, true) => Err(Error {
+                kind: ErrorKind::ConflictingFlags,
+            }),
             (true, false) => {
                 self.archive = true;
                 Ok(())
-            },
+            }
             (false, _) => {
                 self.archive = false;
                 Ok(())
@@ -366,7 +366,7 @@ impl Props {
     /// ```
     /// let mut props = keypropdecode::Props::default();
     /// props.directory(true).unwrap();
-    /// 
+    ///
     /// assert_eq!(props.is_directory(), true);
     /// ```
     pub fn is_directory(&self) -> bool {
@@ -376,50 +376,48 @@ impl Props {
     /// It performs some error checking in order to prevent that a struct can be a directory and an archive at the same time.
     /// ```
     /// use keypropdecode::error::*;
-    /// let mut props = keypropdecode::Props::default(); 
+    /// let mut props = keypropdecode::Props::default();
     /// props.directory(true);
     /// assert_eq!(props.archive(true), Err( Error { kind: ErrorKind::ConflictingFlags }) );
     /// ```
     pub fn directory(&mut self, directory: bool) -> Result<()> {
         match (directory, self.archive) {
-            (true, true) => Err(Error { kind: ErrorKind::ConflictingFlags }),
+            (true, true) => Err(Error {
+                kind: ErrorKind::ConflictingFlags,
+            }),
             (true, false) => {
                 self.directory = true;
                 Ok(())
-            },
+            }
             (false, _) => {
                 self.directory = false;
                 Ok(())
             }
         }
     }
-    /// Returns true if the element represents a physical device in the file system.
+    /// Returns true if the element represents a physical device in the file system. Reserved for system use
     /// ```
-    /// let mut props = keypropdecode::Props::default();
-    /// props.device(true);
-    /// 
+    /// let mut props = keypropdecode::Props::from_number(0x40);
+    ///
     /// assert_eq!(props.is_device(), true);
     /// ```
     pub fn is_device(&self) -> bool {
         self.device
     }
-    /// Allows to change the device state.
-    /// (Proceed with caution because this is usually handled by the OS)
-    pub fn device(&mut self, device: bool) {
+    fn _device(&mut self, device: bool) {
         self.device = device;
     }
     /// Returns true if the element represents a normal file (a file that doesn't have any properties except being a file(check docs for more info)).
     /// ```
     /// let mut props = keypropdecode::Props::default();
     /// props.normal(true);
-    /// 
+    ///
     /// assert_eq!(props.is_normal(), true);
     /// ```
     pub fn is_normal(&self) -> bool {
         self.normal
     }
     /// Allows to change the normal state.
-    /// (Proceed with caution because this is usually handled by the OS)
     pub fn normal(&mut self, normal: bool) {
         self.normal = normal;
     }
@@ -427,44 +425,41 @@ impl Props {
     /// ```
     /// let mut props = keypropdecode::Props::default();
     /// props.temporary(true);
-    /// 
+    ///
     /// assert_eq!(props.is_temporary(), true);
     /// ```
     pub fn is_temporary(&self) -> bool {
         self.temporary
     }
     /// Allows to change the temporary state
-    /// (Proceed with caution because this is usually handled by the OS)
     pub fn temporary(&mut self, temporary: bool) {
         self.temporary = temporary;
     }
     /// Returns true if the element represents a sparse file (made small for space saving purposes).
     /// ```
     /// let mut props = keypropdecode::Props::default();
-    /// props.device(true);
-    /// 
-    /// assert_eq!(props.is_device(), true);
+    /// props.sparse(true);
+    ///
+    /// assert_eq!(props.is_sparse(), true);
     /// ```
     pub fn is_sparse(&self) -> bool {
         self.sparse
     }
     /// Allows to change the sparse state.
-    /// (Proceed with caution because this is usually handled by the OS)
     pub fn sparse(&mut self, sparse: bool) {
         self.sparse = sparse;
     }
     /// Returns true if the element represents a reparse point in the file system (e.g. a symbolic link).
     /// ```
     /// let mut props = keypropdecode::Props::default();
-    /// props.device(true);
-    /// 
-    /// assert_eq!(props.is_device(), true);
+    /// props.reparse(true);
+    ///
+    /// assert_eq!(props.is_reparse(), true);
     /// ```
     pub fn is_reparse(&self) -> bool {
         self.reparse
     }
     /// Allows to change the reparse state.
-    /// (Proceed with caution because this is usually handled by the OS)
     pub fn reparse(&mut self, reparse: bool) {
         self.reparse = reparse;
     }
@@ -472,81 +467,173 @@ impl Props {
     /// ```
     /// let mut props = keypropdecode::Props::default();
     /// props.compressed(true);
-    /// 
+    ///
     /// assert_eq!(props.is_compressed(), true);
     /// ```
     pub fn is_compressed(&self) -> bool {
         self.compressed
     }
+    /// Allows to change the compressed state
     pub fn compressed(&mut self, compressed: bool) {
         self.compressed = compressed;
     }
+    /// Returns true if the element is not available inmediately. Aplications should not change this value in an arbitrary way.
+    /// ```
+    /// let mut props = keypropdecode::Props::default();
+    /// props.offline(true);
+    ///
+    /// assert_eq!(props.is_offline(), true);
+    /// ```
     pub fn is_offline(&self) -> bool {
         self.offline
     }
+    /// Allows to change the offline state
     pub fn offline(&mut self, offline: bool) {
         self.offline = offline;
     }
+    /// Returns true if the element isn't indexed by the content indexing service
+    /// ```
+    /// let mut props = keypropdecode::Props::default();
+    /// props.not_content_indexed(true);
+    ///
+    /// assert_eq!(props.is_not_content_indexed(), true);
+    /// ```
     pub fn is_not_content_indexed(&self) -> bool {
         self.not_content_indexed
     }
+    /// Allows to change the not_content_indexed state
     pub fn not_content_indexed(&mut self, not_content_indexed: bool) {
         self.not_content_indexed = not_content_indexed;
     }
+    /// Returns true if the element is encrypted
+    /// ```
+    /// let mut props = keypropdecode::Props::default();
+    /// props.encrypted(true);
+    ///
+    /// assert_eq!(props.is_encrypted(), true);
+    /// ```
     pub fn is_encrypted(&self) -> bool {
         self.encrypted
     }
+    /// Allows to change the encrypted state
     pub fn encrypted(&mut self, encrypted: bool) {
         self.encrypted = encrypted;
     }
+    /// Returns true if the directory or user data stream is configured with integrity
+    /// ```
+    /// let mut props = keypropdecode::Props::default();
+    /// props.integrity_stream(true);
+    ///
+    /// assert_eq!(props.is_integrity_stream(), true);
+    /// ```
     pub fn is_integrity_stream(&self) -> bool {
         self.integrity_stream
     }
+    /// Allows to change the integrity_stream state
     pub fn integrity_stream(&mut self, integrity_stream: bool) {
         self.integrity_stream = integrity_stream;
     }
+    /// Returns true if the element is a virtual file. This value is reserver for system use
+    /// ```
+    /// let mut props = keypropdecode::Props::from_number(0x10000);
+    ///
+    /// assert_eq!(props.is_virtual_file(), true);
+    /// ```
     pub fn is_virtual_file(&self) -> bool {
         self.virtual_file
     }
-    pub fn virtual_file(&mut self, virtual_file: bool) {
+    fn _virtual_file(&mut self, virtual_file: bool) {
         self.virtual_file = virtual_file;
     }
+    /// Returns true if the user data stream not to be read by the background data integrity scanner (AKA scrubber)
+    /// ```
+    /// let mut props = keypropdecode::Props::default();
+    /// props.no_scrub_data(true);
+    ///
+    /// assert_eq!(props.is_no_scrub_data(), true);
+    /// ```
     pub fn is_no_scrub_data(&self) -> bool {
         self.no_scrub_data
     }
+    /// Allows to change the virtual_file state
     pub fn no_scrub_data(&mut self, no_scrub_data: bool) {
         self.no_scrub_data = no_scrub_data;
     }
+    /// Returns true if the element has got extended attributes. System internal use only.
+    /// ```
+    /// let mut props = keypropdecode::Props::from_number(0x40000);
+    ///
+    /// assert_eq!(props.is_extended_attributes(), true);
+    /// ```
     pub fn is_extended_attributes(&self) -> bool {
         self.extended_attributes
     }
-    pub fn extended_attributes(&mut self, extended_attributes: bool) {
+    fn _extended_attributes(&mut self, extended_attributes: bool) {
         self.extended_attributes = extended_attributes;
     }
+    /// Returns true if the element is indicated user intent that the file or directory should be kept fully present locally even when not being actively accessed.
+    /// ```
+    /// let mut props = keypropdecode::Props::default();
+    /// props.pinned(true);
+    ///
+    /// assert_eq!(props.is_pinned(), true);
+    /// ```
     pub fn is_pinned(&self) -> bool {
         self.pinned
     }
+    /// Allows to change the pinned state
     pub fn pinned(&mut self, pinned: bool) {
         self.pinned = pinned;
     }
+    /// Returns true if the element is indicated user intent that the file or directory shouldn't be kept fully present locally except when being actively accessed.
+    /// ```
+    /// let mut props = keypropdecode::Props::default();
+    /// props.unpinned(true);
+    ///
+    /// assert_eq!(props.is_unpinned(), true);
+    /// ```
     pub fn is_unpinned(&self) -> bool {
         self.unpinned
     }
+    /// Allows to change the unpinned state
     pub fn unpinned(&mut self, unpinned: bool) {
         self.unpinned = unpinned;
     }
+    /// Returns true if the element hasn't got any physical representation on the local system; the item is vitual. Opening the item will be more expensive than normal, e.g., a file in a remote storage
+    /// ```
+    /// let mut props = keypropdecode::Props::default();
+    /// props.recall_on_open(true);
+    ///
+    /// assert_eq!(props.is_recall_on_open(), true);
+    /// ```
     pub fn is_recall_on_open(&self) -> bool {
         self.recall_on_open
     }
+    /// Allows to change the recall_on_open state
     pub fn recall_on_open(&mut self, recall_on_open: bool) {
         self.recall_on_open = recall_on_open;
     }
+    /// Returns true if the element isn't fully present locally.
+    /// ```
+    /// let mut props = keypropdecode::Props::default();
+    /// props.recall_on_data_access(true);
+    ///
+    /// assert_eq!(props.is_recall_on_data_access(), true);
+    /// ```
     pub fn is_recall_on_data_access(&self) -> bool {
         self.recall_on_data_access
     }
+    /// Allows to change the recall_on_data_access state
     pub fn recall_on_data_access(&mut self, recall_on_data_access: bool) {
         self.recall_on_data_access = recall_on_data_access;
     }
+    /// Returns the number correspondent to the file constant
+    /// ```
+    /// let mut props = keypropdecode::Props::default();
+    /// props.recall_on_data_access(true);
+    /// props.recall_on_open(true);
+    /// assert_eq!(props.as_number(), (1 << 22) + (1 << 21));
+    /// ```
     pub fn as_number(&self) -> u32 {
         let mut result = 0;
         if self.read_only {
@@ -618,4 +705,3 @@ impl Props {
         result
     }
 }
-

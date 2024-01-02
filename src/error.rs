@@ -1,5 +1,7 @@
-use std::{error, fmt::{Display, Debug}};
-
+use std::{
+    error,
+    fmt::{Debug, Display},
+};
 
 pub type Result<T> = std::result::Result<T, self::Error>;
 
@@ -10,26 +12,31 @@ pub struct Error {
 #[derive(PartialEq)]
 pub enum ErrorKind {
     FileNotFound,
-    ConflictingFlags
+    ConflictingFlags,
 }
 
 impl Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self.kind {
-            ErrorKind::ConflictingFlags => write!(f, "An element cannot be an archive and a directory at the same time"),
-            ErrorKind::FileNotFound => write!(f, "The file path you provided was not found")
+            ErrorKind::ConflictingFlags => write!(
+                f,
+                "An element cannot be an archive and a directory at the same time"
+            ),
+            ErrorKind::FileNotFound => write!(f, "The file path you provided was not found"),
         }
     }
 }
 impl Debug for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self.kind {
-            ErrorKind::ConflictingFlags => write!(f, "An element cannot be an archive and a directory at the same time"),
-            ErrorKind::FileNotFound => write!(f, "The file path you provided was not found")
+            ErrorKind::ConflictingFlags => write!(
+                f,
+                "An element cannot be an archive and a directory at the same time"
+            ),
+            ErrorKind::FileNotFound => write!(f, "The file path you provided was not found"),
         }
     }
 }
-
 
 impl error::Error for Error {
     fn cause(&self) -> Option<&dyn error::Error> {

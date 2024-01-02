@@ -1,6 +1,5 @@
 use crate::Props;
 
-
 #[test]
 fn default() {
     assert_eq!(Props::default().as_number(), 0b0);
@@ -20,7 +19,7 @@ fn hidden() {
 #[test]
 fn system() {
     let mut props = Props::default();
-    props.system(true);
+    props._system(true);
     assert_eq!(props.as_number(), 1 << 2);
 }
 #[test]
@@ -38,7 +37,7 @@ fn archive() {
 #[test]
 fn device() {
     let mut props = Props::default();
-    props.device(true);
+    props._device(true);
     assert_eq!(props.as_number(), 1 << 6);
 }
 #[test]
@@ -98,7 +97,7 @@ fn integrity_stream() {
 #[test]
 fn virtual_file() {
     let mut props = Props::default();
-    props.virtual_file(true);
+    props._virtual_file(true);
     assert_eq!(props.as_number(), 1 << 16);
 }
 #[test]
@@ -110,7 +109,7 @@ fn no_scrub_data() {
 #[test]
 fn extended_attributes() {
     let mut props = Props::default();
-    props.extended_attributes(true);
+    props._extended_attributes(true);
     assert_eq!(props.as_number(), 1 << 18);
 }
 #[test]
