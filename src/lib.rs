@@ -2,15 +2,14 @@
 //! This crate gives you a handy struct to manage Windows file system elements properties.  
 //! The different constants are defined in [Microsoft File Attributes Constants Documentation](https://learn.microsoft.com/en-us/windows/win32/fileio/file-attribute-constants).
 
-#[cfg(not(windows))]
-compile_error!("This library is only supports Windows!");
 pub mod error;
 pub mod implementations;
 #[cfg(test)]
 mod tests;
 use error::*;
-use std::{fs::Metadata, os::windows::prelude::*, path::PathBuf};
-
+use std::{fs::Metadata, path::PathBuf};
+#[cfg(windows)]
+use std::os::windows::prelude::*;
 /// This struct is the one that gives you the desired behaviour.
 #[derive(Debug, PartialEq, PartialOrd, Eq, Ord, Clone, Copy)]
 pub struct Props {
@@ -278,6 +277,7 @@ impl Props {
     }
     /// Same as the previous constructor, but you have to provide a valid reference to a PathBuf.
     /// This saves you the effort from obtaining the metadata manually. You can also forget about importing the correct libraries.
+    #[cfg(windows)]
     pub fn from_file(file: &PathBuf) -> Result<Self> {
         let metadata: Metadata = match std::fs::metadata(file.clone()) {
             Ok(obtained_metadata) => obtained_metadata,
