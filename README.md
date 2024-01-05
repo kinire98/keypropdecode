@@ -13,7 +13,6 @@ For reference with all the file system element properties go to the [Microsoft F
 use keypropdecode::Props;
 let mut props = Props::default();
 props.archive(true).unwrap();
-props.system(true);
 props.hidden(true);
-assert_eq!(Props::from_file(r"system_hidden_file_example.txt"), props);
+assert_eq!(Props::from_file(r"hidden_file_example.txt"), props);
 ```
