@@ -32,6 +32,7 @@ fn get_most_common_attributes() {
     assert_eq!(props.is_reparse(), true);
 }
 #[test]
+#[ignore = "Just here to see if it would compile, won't provide it with a real file name"]
 fn readme_test() {
     let mut props = Props::default();
     props.archive(true).unwrap();
