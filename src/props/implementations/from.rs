@@ -230,5 +230,18 @@ impl TryFrom<PathBuf> for Props {
         };
         Ok(Props::from(metadata.file_attributes()))
     }
-
+}
+impl TryFrom<&PathBuf> for Props {
+    type Error = crate::error::Error;
+    fn try_from(value: &PathBuf) -> std::prelude::v1::Result<Self, Self::Error> { 
+        let metadata: Metadata = match std::fs::metadata(value.clone()) {
+            Ok(obtained_metadata) => obtained_metadata,
+            Err(_) => {
+                return Err(Error {
+                    kind: ErrorKind::FileNotFound,
+                })
+            }
+        };
+        Ok(Props::from(metadata.file_attributes()))
+    }
 }
