@@ -1,6 +1,7 @@
 use crate::Props;
 
 use std::{fs::Metadata, path::PathBuf};
+#[cfg(windows)]
 use std::os::windows::prelude::*;
 
 use crate::error::*;
@@ -109,6 +110,7 @@ impl From<u32> for Props {
         props
     }
 }
+#[cfg(windows)]
 impl TryFrom<PathBuf> for Props {
     type Error = crate::error::Error;
     fn try_from(value: PathBuf) -> std::prelude::v1::Result<Self, Self::Error> { 
@@ -123,6 +125,7 @@ impl TryFrom<PathBuf> for Props {
         Ok(Props::from(metadata.file_attributes()))
     }
 }
+#[cfg(windows)]
 impl TryFrom<&PathBuf> for Props {
     type Error = crate::error::Error;
     fn try_from(value: &PathBuf) -> std::prelude::v1::Result<Self, Self::Error> { 
@@ -137,6 +140,7 @@ impl TryFrom<&PathBuf> for Props {
         Ok(Props::from(metadata.file_attributes()))
     }
 }
+#[cfg(windows)]
 impl TryFrom<&str> for Props {
     type Error = crate::error::Error;
     fn try_from(value: &str) -> std::prelude::v1::Result<Self, Self::Error>  {
