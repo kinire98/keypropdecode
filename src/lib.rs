@@ -5,6 +5,6 @@
 /// The Error type for the crate
 pub mod error;
 #[cfg(windows)]
-mod props;
+pub mod props;
 #[cfg(windows)]
 pub use props::Props;
