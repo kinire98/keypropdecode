@@ -3,7 +3,7 @@ use keypropdecode::Props;
 fn read_only_and_hidden_archive_from_number() {
     let mut props = Props::default();
     props.archive(true).unwrap();
-    props.read_only(true);
+    props.read_only(true).unwrap();
     props.hidden(true);
     assert_eq!(props, Props::from(0b100011))
 }

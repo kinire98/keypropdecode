@@ -20,8 +20,9 @@ fn archive() {
 #[test]
 fn read_only() {
     let mut props = Props::default();
-    props.read_only(true);
-    assert_eq!(props.to_string(), "--r---".to_string())
+    props.archive(true).unwrap();
+    props.read_only(true).unwrap();
+    assert_eq!(props.to_string(), "-ar---".to_string())
 }
 #[test]
 fn hidden() {

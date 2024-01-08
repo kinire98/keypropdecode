@@ -45,7 +45,8 @@ impl Props {
     /// Returns true if the element is read_only. Not available on folders.
     /// ```
     /// let mut props = keypropdecode::Props::default();
-    /// props.read_only(true);
+    /// props.archive(true).unwrap();
+    /// props.read_only(true).unwrap();
     ///
     /// assert_eq!(props.is_read_only(), true);
     /// ```
@@ -53,8 +54,18 @@ impl Props {
         self.read_only
     }
     /// Allows to change the read_only state. Not available on folder.
-    pub fn read_only(&mut self, read_only: bool) {
-        self.read_only = read_only;
+    pub fn read_only(&mut self, read_only: bool) -> Result<()> {
+        match (read_only, self.archive) {
+            (true, false) =>   Err(Error { kind: ErrorKind::ConflictingFlags("The read only flag must be applied to a file".to_string()) }),
+            (true, true) => {
+                self.read_only = true;
+                Ok(())
+            },
+            (false, _) => {
+                self.read_only = false;
+                Ok(())
+            }
+        }
     }
     /// Returns true if the element is hidden.
     /// ```
@@ -98,12 +109,12 @@ impl Props {
     /// use keypropdecode::error::*;
     /// let mut props = keypropdecode::Props::default();
     /// props.archive(true).unwrap();
-    /// assert_eq!(props.directory(true), Err( Error { kind: ErrorKind::ConflictingFlags }) );
+    /// assert_eq!(props.directory(true), Err( Error { kind: ErrorKind::ConflictingFlags("An element cannot be an archive and a directory at the same time".to_string()) }) );
     /// ```
     pub fn archive(&mut self, archive: bool) -> Result<()> {
         match (archive, self.directory) {
             (true, true) => Err(Error {
-                kind: ErrorKind::ConflictingFlags,
+                kind: ErrorKind::ConflictingFlags("An element cannot be an archive and a directory at the same time".to_string()),
             }),
             (true, false) => {
                 self.archive = true;
@@ -131,12 +142,12 @@ impl Props {
     /// use keypropdecode::error::*;
     /// let mut props = keypropdecode::Props::default();
     /// props.directory(true);
-    /// assert_eq!(props.archive(true), Err( Error { kind: ErrorKind::ConflictingFlags }) );
+    /// assert_eq!(props.archive(true), Err( Error { kind: ErrorKind::ConflictingFlags("An element cannot be an archive and a directory at the same time".to_string()) }) );
     /// ```
     pub fn directory(&mut self, directory: bool) -> Result<()> {
         match (directory, self.archive) {
             (true, true) => Err(Error {
-                kind: ErrorKind::ConflictingFlags,
+                kind: ErrorKind::ConflictingFlags("An element cannot be an archive and a directory at the same time".to_string()),
             }),
             (true, false) => {
                 self.directory = true;
@@ -163,7 +174,8 @@ impl Props {
     /// Returns true if the element represents a normal file (a file that doesn't have any properties except being a file(check docs for more info)).
     /// ```
     /// let mut props = keypropdecode::Props::default();
-    /// props.normal(true);
+    /// props.archive(true).unwrap();
+    /// props.normal(true).unwrap();
     ///
     /// assert_eq!(props.is_normal(), true);
     /// ```
@@ -171,13 +183,28 @@ impl Props {
         self.normal
     }
     /// Allows to change the normal state.
-    pub fn normal(&mut self, normal: bool) {
-        self.normal = normal;
+    pub fn normal(&mut self, normal: bool) -> Result<()> {
+        let mut comparison = Self::default();
+        comparison.archive(true).unwrap();
+        match (&mut comparison == self, normal) {
+            (false, true) => {
+                Err(Error { kind: ErrorKind::ConflictingFlags("The normal flag can only be applied to an archive with no properties, such as read only or hidden. If you are sure the element is not a directory and hasn't any properties, check if the normal flag is already applied. In that case, this call to the method shouldn't be neccesary".to_string()) })
+            },
+            (true, true) => {
+                self.normal = true;
+                Ok(())
+            },
+            (_, false) => {
+                self.normal = false;
+                Ok(())
+            }
+        }
     }
     /// Returns true if the element represents a temporary file.
     /// ```
     /// let mut props = keypropdecode::Props::default();
-    /// props.temporary(true);
+    /// props.archive(true).unwrap();
+    /// props.temporary(true).unwrap();
     ///
     /// assert_eq!(props.is_temporary(), true);
     /// ```
@@ -185,13 +212,24 @@ impl Props {
         self.temporary
     }
     /// Allows to change the temporary state
-    pub fn temporary(&mut self, temporary: bool) {
-        self.temporary = temporary;
+    pub fn temporary(&mut self, temporary: bool) -> Result<()> {
+        match (temporary, self.archive) {
+            (true, false) => Err(Error { kind: ErrorKind::ConflictingFlags("The temporary flag must be applied to a file".to_string()) }),
+            (true, true) => {
+                self.temporary = true;
+                Ok(())
+            }
+            (false, _) => {
+                self.temporary = false;
+                Ok(())
+            }
+        }
     }
     /// Returns true if the element represents a sparse file (made small for space saving purposes).
     /// ```
     /// let mut props = keypropdecode::Props::default();
-    /// props.sparse(true);
+    /// props.archive(true).unwrap();
+    /// props.sparse(true).unwrap();
     ///
     /// assert_eq!(props.is_sparse(), true);
     /// ```
@@ -199,8 +237,18 @@ impl Props {
         self.sparse
     }
     /// Allows to change the sparse state.
-    pub fn sparse(&mut self, sparse: bool) {
-        self.sparse = sparse;
+    pub fn sparse(&mut self, sparse: bool) -> Result<()> {
+        match (sparse, self.archive) {
+            (true, false) => Err(Error { kind: ErrorKind::ConflictingFlags("The sparse flag must be applied to a file".to_string()) }),
+            (true, true) => {
+                self.sparse = true;
+                Ok(())
+            }
+            (false, _) => {
+                self.sparse = false;
+                Ok(())
+            }
+        }
     }
     /// Returns true if the element represents a reparse point in the file system (e.g. a symbolic link).
     /// ```
@@ -233,7 +281,8 @@ impl Props {
     /// Returns true if the element is not available inmediately. Aplications should not change this value in an arbitrary way.
     /// ```
     /// let mut props = keypropdecode::Props::default();
-    /// props.offline(true);
+    /// props.archive(true).unwrap();
+    /// props.offline(true).unwrap();
     ///
     /// assert_eq!(props.is_offline(), true);
     /// ```
@@ -241,8 +290,18 @@ impl Props {
         self.offline
     }
     /// Allows to change the offline state
-    pub fn offline(&mut self, offline: bool) {
-        self.offline = offline;
+    pub fn offline(&mut self, offline: bool) -> Result<()>{
+        match (offline, self.archive) {
+            (true, false) => Err(Error { kind: ErrorKind::ConflictingFlags("The offline flag can only be applied to files".to_string()) }),
+            (true, true) => {
+                self.offline = true;
+                Ok(())
+            },
+            (false, _) => {
+                self.offline = false;
+                Ok(())
+            }
+        }
     }
     /// Returns true if the element isn't indexed by the content indexing service
     /// ```

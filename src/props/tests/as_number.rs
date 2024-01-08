@@ -8,9 +8,10 @@ fn default() {
 #[test]
 fn read_only() {
     let mut props = Props::default();
-    props.read_only(true);
+    props.archive(true).unwrap();
+    props.read_only(true).unwrap();
     let value: u32 = props.into();
-    assert_eq!(value, 0b1);
+    assert_eq!(value, 0b1 + (1 << 5));
 }
 #[test]
 fn hidden() {
@@ -50,23 +51,26 @@ fn device() {
 #[test]
 fn normal() {
     let mut props = Props::default();
-    props.normal(true);
+    props.archive(true).unwrap();
+    props.normal(true).unwrap();
     let value: u32 = props.into();
-    assert_eq!(value, 1 << 7);
+    assert_eq!(value, (1 << 7) + (1 << 5));
 }
 #[test]
 fn temporary() {
     let mut props = Props::default();
-    props.temporary(true);
+    props.archive(true).unwrap();
+    props.temporary(true).unwrap();
     let value: u32 = props.into();
-    assert_eq!(value, 1 << 8);
+    assert_eq!(value, (1 << 8) + (1 << 5));
 }
 #[test]
 fn sparse() {
     let mut props = Props::default();
-    props.sparse(true);
+    props.archive(true).unwrap();
+    props.sparse(true).unwrap();
     let value: u32 = props.into();
-    assert_eq!(value, 1 << 9);
+    assert_eq!(value, (1 << 9) + (1 << 5));
 }
 #[test]
 fn reparse() {
@@ -85,9 +89,10 @@ fn compressed() {
 #[test]
 fn offline() {
     let mut props = Props::default();
-    props.offline(true);
+    props.archive(true).unwrap();
+    props.offline(true).unwrap();
     let value: u32 = props.into();
-    assert_eq!(value, 1 << 12);
+    assert_eq!(value, (1 << 12) + (1 << 5));
 }
 #[test]
 fn not_content_indexed() {

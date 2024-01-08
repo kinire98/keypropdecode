@@ -6,8 +6,9 @@ fn test_basic() {
 #[test]
 fn read_only() {
     let mut read_only = Props::default();
-    read_only.read_only(true);
-    assert_eq!(Props::from(1), read_only);
+    read_only.archive(true).unwrap();
+    read_only.read_only(true).unwrap();
+    assert_eq!(Props::from(1 + (1 << 5)), read_only);
 }
 #[test]
 fn hidden() {
@@ -42,20 +43,23 @@ fn device() {
 #[test]
 fn normal() {
     let mut normal = Props::default();
-    normal.normal(true);
-    assert_eq!(Props::from(1 << 7), normal);
+    normal.archive(true).unwrap();
+    normal.normal(true).unwrap();
+    assert_eq!(Props::from((1 << 7) + (1 << 5)), normal);
 }
 #[test]
 fn temporary() {
     let mut temporary = Props::default();
-    temporary.temporary(true);
-    assert_eq!(Props::from(1 << 8), temporary);
+    temporary.archive(true).unwrap();
+    temporary.temporary(true).unwrap();
+    assert_eq!(Props::from((1 << 8) + (1 << 5)), temporary);
 }
 #[test]
 fn sparse() {
     let mut sparse = Props::default();
-    sparse.sparse(true);
-    assert_eq!(Props::from(1 << 9), sparse);
+    sparse.archive(true).unwrap();
+    sparse.sparse(true).unwrap();
+    assert_eq!(Props::from((1 << 9) + (1 << 5)), sparse);
 }
 #[test]
 fn reparse() {
@@ -72,8 +76,9 @@ fn compressed() {
 #[test]
 fn offline() {
     let mut offline = Props::default();
-    offline.offline(true);
-    assert_eq!(Props::from(1 << 12), offline);
+    offline.archive(true).unwrap();
+    offline.offline(true).unwrap();
+    assert_eq!(Props::from((1 << 12) + (1 << 5)), offline);
 }
 #[test]
 fn not_content_indexed() {
