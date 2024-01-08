@@ -1,12 +1,13 @@
 [package]
 name = "keypropdecode"
-version = "1.1.0"
+version = "1.1.1"
 edition = "2021"
 authors = ["kinire98"]
 description = "A library for decoding Windows file system elements attributes constants"
 license = "MIT"
 documentation = "https://docs.rs/keypropdecode/latest/keypropdecode/"
 repository = "https://github.com/kinire98/keypropdecode"
+homepage = "https://crates.io/crates/keypropdecode"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
