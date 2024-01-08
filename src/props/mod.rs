@@ -14,7 +14,7 @@ use crate::error::*;
 /// 3. From<Props> for u32
 /// 4. TryFrom<Pathbuf> for Props
 /// 5. TryFrom<&Pathbuf> for Props
-/// 6. TryFrom<6str> for Props  
+/// 6. TryFrom<&str> for Props  
 /// (The TryFrom ones won't appear in the documentation because they use Windows specific behaviour and it is put behind a conditional flag because docs.rs only uses a Linux container)
 #[derive(Debug, PartialEq, PartialOrd, Eq, Ord, Clone, Copy, Default)]
 pub struct Props {
