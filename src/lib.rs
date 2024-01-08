@@ -8,5 +8,3 @@ pub mod error;
 mod props;
 #[cfg(windows)]
 pub use props::Props;
-#[cfg(not(windows))]
-println!("Windows-only library");
