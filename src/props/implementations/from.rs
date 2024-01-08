@@ -137,3 +137,75 @@ impl TryFrom<&PathBuf> for Props {
         Ok(Props::from(metadata.file_attributes()))
     }
 }
+impl From<Props> for u32 {
+    fn from(value: Props) -> Self {
+        let mut result = 0;
+        if value.read_only {
+            result += 0b1;
+        }
+        if value.hidden {
+            result += 1 << 1;
+        }
+        if value.system {
+            result += 1 << 2;
+        }
+        if value.directory {
+            result += 1 << 4;
+        }
+        if value.archive {
+            result += 1 << 5;
+        }
+        if value.device {
+            result += 1 << 6;
+        }
+        if value.normal {
+            result += 1 << 7;
+        }
+        if value.temporary {
+            result += 1 << 8;
+        }
+        if value.sparse {
+            result += 1 << 9;
+        }
+        if value.reparse {
+            result += 1 << 10;
+        }
+        if value.compressed {
+            result += 1 << 11;
+        }
+        if value.offline {
+            result += 1 << 12;
+        }
+        if value.not_content_indexed {
+            result += 1 << 13;
+        }
+        if value.encrypted {
+            result += 1 << 14;
+        }
+        if value.integrity_stream {
+            result += 1 << 15;
+        }
+        if value.virtual_file {
+            result += 1 << 16;
+        }
+        if value.no_scrub_data {
+            result += 1 << 17;
+        }
+        if value.extended_attributes {
+            result += 1 << 18;
+        }
+        if value.pinned {
+            result += 1 << 19;
+        }
+        if value.unpinned {
+            result += 1 << 20;
+        }
+        if value.recall_on_open {
+            result += 1 << 21;
+        }
+        if value.recall_on_data_access {
+            result += 1 << 22;
+        }
+        result
+    }
+}
