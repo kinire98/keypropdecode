@@ -31,7 +31,7 @@ fn hidden() {
 }
 #[test]
 fn system() {
-    let props = Props::from_number(0x4);
+    let props = Props::from(0x4);
     assert_eq!(props.to_string(), "----s-".to_string())
 }
 #[test]
