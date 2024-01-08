@@ -137,6 +137,13 @@ impl TryFrom<&PathBuf> for Props {
         Ok(Props::from(metadata.file_attributes()))
     }
 }
+impl TryFrom<&str> for Props {
+    type Error = crate::error::Error;
+    fn try_from(value: &str) -> std::prelude::v1::Result<Self, Self::Error>  {
+        let path = PathBuf::from(value);
+        Props::try_from(path)
+    }
+}
 impl From<Props> for u32 {
     fn from(value: Props) -> Self {
         let mut result = 0;

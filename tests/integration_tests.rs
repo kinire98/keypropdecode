@@ -31,3 +31,10 @@ fn get_most_common_attributes() {
     assert_eq!(props.is_archive(), true);
     assert_eq!(props.is_reparse(), true);
 }
+#[test]
+fn readme_test() {
+    let mut props = Props::default();
+    props.archive(true).unwrap();
+    props.hidden(true);
+    assert_eq!(Props::try_from(r"hidden_file_example.txt").unwrap(), props);
+}

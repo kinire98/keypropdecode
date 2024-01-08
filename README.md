@@ -14,5 +14,5 @@ use keypropdecode::Props;
 let mut props = Props::default();
 props.archive(true).unwrap();
 props.hidden(true);
-assert_eq!(Props::from_file(r"hidden_file_example.txt"), props);
+assert_eq!(Props::try_from(r"hidden_file_example.txt").unwrap(), props);
 ```
