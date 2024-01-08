@@ -64,7 +64,7 @@ impl Props {
     }
     /// Returns true if the element is used for system purposes.
     /// ```
-    /// let mut props = keypropdecode::Props::from_number(0x4);
+    /// let mut props = keypropdecode::Props::from(0x4);
     ///
     /// assert_eq!(props.is_system(), true);
     /// ```
@@ -142,7 +142,7 @@ impl Props {
     }
     /// Returns true if the element represents a physical device in the file system. Reserved for system use
     /// ```
-    /// let mut props = keypropdecode::Props::from_number(0x40);
+    /// let mut props = keypropdecode::Props::from(0x40);
     ///
     /// assert_eq!(props.is_device(), true);
     /// ```
@@ -280,7 +280,7 @@ impl Props {
     }
     /// Returns true if the element is a virtual file. This value is reserver for system use
     /// ```
-    /// let mut props = keypropdecode::Props::from_number(0x10000);
+    /// let mut props = keypropdecode::Props::from(0x10000);
     ///
     /// assert_eq!(props.is_virtual_file(), true);
     /// ```
@@ -306,7 +306,7 @@ impl Props {
     }
     /// Returns true if the element has got extended attributes. System internal use only.
     /// ```
-    /// let mut props = keypropdecode::Props::from_number(0x40000);
+    /// let mut props = keypropdecode::Props::from(0x40000);
     ///
     /// assert_eq!(props.is_extended_attributes(), true);
     /// ```

@@ -5,6 +5,30 @@ use std::os::windows::prelude::*;
 
 use crate::error::*;
 
+
+
+const READ_ONLY: u32 = 1;
+const HIDDEN: u32 = 1 << 1;
+const SYSTEM: u32  = 1 << 2;
+const DIRECTORY: u32 = 1 << 4;
+const ARCHIVE: u32 = 1 << 5;
+const DEVICE: u32 = 1 << 6;
+const NORMAL: u32 = 1 << 7;
+const TEMPORARY: u32 = 1 << 8;
+const SPARSE: u32 = 1 << 9;
+const REPARSE: u32 = 1 << 10;
+const COMPRESSED: u32 = 1 << 11;
+const OFFLINE: u32 = 1 << 12; 
+const NOT_CONTENT_INDEXED: u32 = 1 << 13;
+const ENCRYPTED: u32 = 1 << 14;
+const INTEGRITY_STREAM: u32 = 1 << 15;
+const VIRTUAL_FILE: u32 = 1 << 16;
+const NO_SCRUB_DATA: u32 = 1 << 17; 
+const EXTENDED_ATTRIBUTES: u32 = 1 << 18;
+const PINNED: u32 = 1 << 19;
+const UNPINNED: u32 = 1 << 20;
+const RECALL_ON_OPEN: u32 = 1 << 21;
+const RECALL_ON_DATA_ACCESS: u32 = 1 << 22;
 impl From<u32> for Props {
     fn from(value: u32) -> Self {
         /*
@@ -15,206 +39,74 @@ impl From<u32> for Props {
            after a right shift and then a left one is equal to the
            clone that means there was a 0 there. Otherwise, there was a 1
         */
-        let mut props = value;
-        let mut clone = props;
-        let mut read_only = false;
-        props >>= 1;
-        props <<= 1;
-        if clone != props {
-            read_only = true;
+        let mut props = Self::default();
+        if value & READ_ONLY  == READ_ONLY {
+            props.read_only = true;
         }
-        props >>= 1;
-        clone >>= 1;
-        let mut hidden = false;
-        props >>= 1;
-        props <<= 1;
-        if clone != props {
-            hidden = true;
+        if value & HIDDEN == HIDDEN {
+            props.hidden = true;
         }
-        props >>= 1;
-        clone >>= 1;
-        let mut system = false;
-        props >>= 1;
-        props <<= 1;
-        if clone != props {
-            system = true;
+        if value & SYSTEM == SYSTEM {
+            props.system = true;
         }
-        props >>= 2;
-        clone >>= 2;
-        let mut directory = false;
-        props >>= 1;
-        props <<= 1;
-        if clone != props {
-            directory = true;
+        if value & DIRECTORY == DIRECTORY {
+            props.directory = true;
         }
-        props >>= 1;
-        clone >>= 1;
-        let mut archive = false;
-        props >>= 1;
-        props <<= 1;
-        if clone != props {
-            archive = true;
+        if value & ARCHIVE == ARCHIVE {
+            props.archive = true;
         }
-        props >>= 1;
-        clone >>= 1;
-        let mut device = false;
-        props >>= 1;
-        props <<= 1;
-        if clone != props {
-            device = true;
+        if value & DEVICE == DEVICE {
+            props.device = true;
         }
-        props >>= 1;
-        clone >>= 1;
-        let mut normal = false;
-        props >>= 1;
-        props <<= 1;
-        if clone != props {
-            normal = true;
+        if value & NORMAL == NORMAL {
+            props.normal = true;
         }
-        props >>= 1;
-        clone >>= 1;
-        let mut temporary = false;
-        props >>= 1;
-        props <<= 1;
-        if clone != props {
-            temporary = true;
+        if value & TEMPORARY == TEMPORARY {
+            props.temporary = true;
         }
-        props >>= 1;
-        clone >>= 1;
-        let mut sparse = false;
-        props >>= 1;
-        props <<= 1;
-        if clone != props {
-            sparse = true;
+        if value & SPARSE == SPARSE {
+            props.sparse = true;
         }
-        props >>= 1;
-        clone >>= 1;
-        let mut reparse = false;
-        props >>= 1;
-        props <<= 1;
-        if clone != props {
-            reparse = true;
+        if value & REPARSE == REPARSE {
+            props.reparse = true;
         }
-        props >>= 1;
-        clone >>= 1;
-        let mut compressed = false;
-        props >>= 1;
-        props <<= 1;
-        if clone != props {
-            compressed = true;
+        if value & COMPRESSED == COMPRESSED {
+            props.compressed = true;
         }
-        props >>= 1;
-        clone >>= 1;
-        let mut offline = false;
-        props >>= 1;
-        props <<= 1;
-        if clone != props {
-            offline = true;
+        if value & OFFLINE == OFFLINE {
+            props.offline = true;
         }
-        props >>= 1;
-        clone >>= 1;
-        let mut not_content_indexed = false;
-        props >>= 1;
-        props <<= 1;
-        if clone != props {
-            not_content_indexed = true;
+        if value & NOT_CONTENT_INDEXED == NOT_CONTENT_INDEXED {
+            props.not_content_indexed = true;
         }
-        props >>= 1;
-        clone >>= 1;
-        let mut encrypted = false;
-        props >>= 1;
-        props <<= 1;
-        if clone != props {
-            encrypted = true;
+        if value & ENCRYPTED == ENCRYPTED {
+            props.encrypted = true;
         }
-        props >>= 1;
-        clone >>= 1;
-        let mut integrity_stream = false;
-        props >>= 1;
-        props <<= 1;
-        if clone != props {
-            integrity_stream = true;
+        if  value & INTEGRITY_STREAM == INTEGRITY_STREAM {
+            props.integrity_stream = true;
         }
-        props >>= 1;
-        clone >>= 1;
-        let mut virtual_file = false;
-        props >>= 1;
-        props <<= 1;
-        if clone != props {
-            virtual_file = true;
+        if value & VIRTUAL_FILE == VIRTUAL_FILE {
+            props.virtual_file = true;
         }
-        props >>= 1;
-        clone >>= 1;
-        let mut no_scrub_data = false;
-        props >>= 1;
-        props <<= 1;
-        if clone != props {
-            no_scrub_data = true;
+        if value & NO_SCRUB_DATA == NO_SCRUB_DATA {
+            props.no_scrub_data = true;
         }
-        props >>= 1;
-        clone >>= 1;
-        let mut extended_attributes = false;
-        props >>= 1;
-        props <<= 1;
-        if clone != props {
-            extended_attributes = true;
+        if value & EXTENDED_ATTRIBUTES == EXTENDED_ATTRIBUTES {
+            props.extended_attributes = true;
         }
-        props >>= 1;
-        clone >>= 1;
-        let mut pinned = false;
-        props >>= 1;
-        props <<= 1;
-        if clone != props {
-            pinned = true;
+        if value & PINNED == PINNED {
+            props.pinned = true;
         }
-        props >>= 1;
-        clone >>= 1;
-        let mut unpinned = false;
-        props >>= 1;
-        props <<= 1;
-        if clone != props {
-            unpinned = true;
+        if value & UNPINNED == UNPINNED {
+            props.unpinned = true;
         }
-        props >>= 1;
-        clone >>= 1;
-        let mut recall_on_open = false;
-        props >>= 1;
-        props <<= 1;
-        if clone != props {
-            recall_on_open = true;
+        if value & RECALL_ON_OPEN == RECALL_ON_OPEN {
+            props.recall_on_open = true;
         }
-        props >>= 1;
-        clone >>= 1;
-        let mut recall_on_data_access = false;
-        props >>= 1;
-        props <<= 1;
-        if clone != props {
-            recall_on_data_access = true;
+        if value & RECALL_ON_DATA_ACCESS == RECALL_ON_DATA_ACCESS {
+            props.recall_on_data_access = true;
         }
-        Props {
-            read_only,
-            hidden,
-            system,
-            directory,
-            archive,
-            device,
-            normal,
-            temporary,
-            sparse,
-            reparse,
-            compressed,
-            offline,
-            not_content_indexed,
-            encrypted,
-            integrity_stream,
-            virtual_file,
-            no_scrub_data,
-            extended_attributes,
-            pinned,
-            unpinned,
-            recall_on_open,
-            recall_on_data_access,
-        }
+        props
     }
 }
 impl TryFrom<PathBuf> for Props {
