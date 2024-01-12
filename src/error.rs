@@ -13,6 +13,7 @@ pub struct Error {
 pub enum ErrorKind {
     FileNotFound,
     ConflictingFlags(String),
+    InvalidState(String),
 }
 
 impl Display for Error {
@@ -24,6 +25,7 @@ impl Display for Error {
                 msg
             ),
             ErrorKind::FileNotFound => write!(f, "The file path you provided was not found"),
+            ErrorKind::InvalidState(msg) => write!(f, "The state is invalid: {}", msg),
         }
     }
 }
@@ -36,6 +38,7 @@ impl Debug for Error {
                 msg
             ),
             ErrorKind::FileNotFound => write!(f, "The file path you provided was not found"),
+            ErrorKind::InvalidState(msg) => write!(f, "The state is invalid: {}", msg),
         }
     }
 }
