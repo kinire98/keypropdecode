@@ -474,6 +474,11 @@ impl Props {
                 ),
             });
         }
+        if self.normal && !self.archive {
+            return Err(Error {
+                kind: ErrorKind::InvalidState("".to_string()),
+            });
+        }
         Ok(())
     }
 }
