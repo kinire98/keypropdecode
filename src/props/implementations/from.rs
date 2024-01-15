@@ -1,16 +1,14 @@
 use crate::Props;
 
-use std::{fs::Metadata, path::PathBuf};
 #[cfg(windows)]
 use std::os::windows::prelude::*;
+use std::{fs::Metadata, path::PathBuf};
 
 use crate::error::*;
 
-
-
 const READ_ONLY: u32 = 1;
 const HIDDEN: u32 = 1 << 1;
-const SYSTEM: u32  = 1 << 2;
+const SYSTEM: u32 = 1 << 2;
 const DIRECTORY: u32 = 1 << 4;
 const ARCHIVE: u32 = 1 << 5;
 const DEVICE: u32 = 1 << 6;
@@ -19,12 +17,12 @@ const TEMPORARY: u32 = 1 << 8;
 const SPARSE: u32 = 1 << 9;
 const REPARSE: u32 = 1 << 10;
 const COMPRESSED: u32 = 1 << 11;
-const OFFLINE: u32 = 1 << 12; 
+const OFFLINE: u32 = 1 << 12;
 const NOT_CONTENT_INDEXED: u32 = 1 << 13;
 const ENCRYPTED: u32 = 1 << 14;
 const INTEGRITY_STREAM: u32 = 1 << 15;
 const VIRTUAL_FILE: u32 = 1 << 16;
-const NO_SCRUB_DATA: u32 = 1 << 17; 
+const NO_SCRUB_DATA: u32 = 1 << 17;
 const EXTENDED_ATTRIBUTES: u32 = 1 << 18;
 const PINNED: u32 = 1 << 19;
 const UNPINNED: u32 = 1 << 20;
@@ -41,7 +39,7 @@ impl From<u32> for Props {
            clone that means there was a 0 there. Otherwise, there was a 1
         */
         let mut props = Self::default();
-        if value & READ_ONLY  == READ_ONLY {
+        if value & READ_ONLY == READ_ONLY {
             props.read_only = true;
         }
         if value & HIDDEN == HIDDEN {
@@ -83,7 +81,7 @@ impl From<u32> for Props {
         if value & ENCRYPTED == ENCRYPTED {
             props.encrypted = true;
         }
-        if  value & INTEGRITY_STREAM == INTEGRITY_STREAM {
+        if value & INTEGRITY_STREAM == INTEGRITY_STREAM {
             props.integrity_stream = true;
         }
         if value & VIRTUAL_FILE == VIRTUAL_FILE {
@@ -113,7 +111,7 @@ impl From<u32> for Props {
 #[cfg(windows)]
 impl TryFrom<PathBuf> for Props {
     type Error = crate::error::Error;
-    fn try_from(value: PathBuf) -> std::prelude::v1::Result<Self, Self::Error> { 
+    fn try_from(value: PathBuf) -> std::prelude::v1::Result<Self, Self::Error> {
         let metadata: Metadata = match std::fs::metadata(value.clone()) {
             Ok(obtained_metadata) => obtained_metadata,
             Err(_) => {
@@ -128,7 +126,7 @@ impl TryFrom<PathBuf> for Props {
 #[cfg(windows)]
 impl TryFrom<&PathBuf> for Props {
     type Error = crate::error::Error;
-    fn try_from(value: &PathBuf) -> std::prelude::v1::Result<Self, Self::Error> { 
+    fn try_from(value: &PathBuf) -> std::prelude::v1::Result<Self, Self::Error> {
         let metadata: Metadata = match std::fs::metadata(value.clone()) {
             Ok(obtained_metadata) => obtained_metadata,
             Err(_) => {
@@ -143,7 +141,7 @@ impl TryFrom<&PathBuf> for Props {
 #[cfg(windows)]
 impl TryFrom<&str> for Props {
     type Error = crate::error::Error;
-    fn try_from(value: &str) -> std::prelude::v1::Result<Self, Self::Error>  {
+    fn try_from(value: &str) -> std::prelude::v1::Result<Self, Self::Error> {
         let path = PathBuf::from(value);
         Props::try_from(path)
     }
