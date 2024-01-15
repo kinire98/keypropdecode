@@ -456,29 +456,4 @@ impl Props {
     pub fn recall_on_data_access(&mut self, recall_on_data_access: bool) {
         self.recall_on_data_access = recall_on_data_access;
     }
-    /// If you make a lot of changes to this struct it can result in an invalid state.  
-    /// This function will check if its valid and return Ok(()) if so.  
-    /// If it isn't it'll return an Err().
-    pub fn is_valid(&self) -> Result<()> {
-        if self.archive && self.directory {
-            return Err(Error {
-                kind: ErrorKind::InvalidState(
-                    "Cannot be archive and directory at the same time".to_string(),
-                ),
-            });
-        }
-        if self.read_only && !self.archive {
-            return Err(Error {
-                kind: ErrorKind::InvalidState(
-                    "Read only state must only be used with the archive property".to_string(),
-                ),
-            });
-        }
-        if self.normal && !self.archive {
-            return Err(Error {
-                kind: ErrorKind::InvalidState("".to_string()),
-            });
-        }
-        Ok(())
-    }
 }
