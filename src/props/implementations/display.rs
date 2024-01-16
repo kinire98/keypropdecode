@@ -9,7 +9,6 @@ impl Display for Props {
             ArcDir::Archive(_) => false,
         };
         let read_only = if let ArcDir::Archive(arc_props) = self.element_type {
-            println!("{:?}", arc_props);
             arc_props.read_only
         } else {
             false
