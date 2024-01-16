@@ -4,5 +4,5 @@
 
 /// The Error type for the crate
 pub mod error;
-mod props;
+pub mod props;
 pub use props::Props;

@@ -1,4 +1,7 @@
-use crate::Props;
+use crate::{
+    props::{ArcDir, ArchiveProps},
+    Props,
+};
 
 #[cfg(windows)]
 use std::os::windows::prelude::*;
@@ -30,17 +33,32 @@ const RECALL_ON_OPEN: u32 = 1 << 21;
 const RECALL_ON_DATA_ACCESS: u32 = 1 << 22;
 impl From<u32> for Props {
     fn from(value: u32) -> Self {
-        /*
-           All of this left/right shift operations because
-           Windows gives files properties in integer form
-           Here is needed to check if a specific bit is a 1
-           I make a copy of the properties, if the number
-           after a right shift and then a left one is equal to the
-           clone that means there was a 0 there. Otherwise, there was a 1
-        */
+        // ! OS FS correcteness is assumed.
+        // ! I ain't going to check if the properties given are wrong. So if you throw a random
+        // ! number it will result in nonsense
         let mut props = Self::default();
-        if value & READ_ONLY == READ_ONLY {
-            props.read_only = true;
+        if value & DIRECTORY == DIRECTORY {
+            props.element_type = ArcDir::Directory;
+        }
+        if value & ARCHIVE == ARCHIVE {
+            let mut arc_props = ArchiveProps::default();
+            arc_props.normal = false;
+            if value & READ_ONLY == READ_ONLY {
+                arc_props.read_only = true;
+            }
+            if value & NORMAL == NORMAL {
+                arc_props.normal = true;
+            }
+            if value & TEMPORARY == TEMPORARY {
+                arc_props.temporary = true;
+            }
+            if value & SPARSE == SPARSE {
+                arc_props.sparse = true;
+            }
+            if value & OFFLINE == OFFLINE {
+                arc_props.offline = true;
+            }
+            props.element_type = ArcDir::Archive(arc_props);
         }
         if value & HIDDEN == HIDDEN {
             props.hidden = true;
@@ -48,32 +66,14 @@ impl From<u32> for Props {
         if value & SYSTEM == SYSTEM {
             props.system = true;
         }
-        if value & DIRECTORY == DIRECTORY {
-            props.directory = true;
-        }
-        if value & ARCHIVE == ARCHIVE {
-            props.archive = true;
-        }
         if value & DEVICE == DEVICE {
             props.device = true;
-        }
-        if value & NORMAL == NORMAL {
-            props.normal = true;
-        }
-        if value & TEMPORARY == TEMPORARY {
-            props.temporary = true;
-        }
-        if value & SPARSE == SPARSE {
-            props.sparse = true;
         }
         if value & REPARSE == REPARSE {
             props.reparse = true;
         }
         if value & COMPRESSED == COMPRESSED {
             props.compressed = true;
-        }
-        if value & OFFLINE == OFFLINE {
-            props.offline = true;
         }
         if value & NOT_CONTENT_INDEXED == NOT_CONTENT_INDEXED {
             props.not_content_indexed = true;
@@ -149,8 +149,23 @@ impl TryFrom<&str> for Props {
 impl From<Props> for u32 {
     fn from(value: Props) -> Self {
         let mut result = 0;
-        if value.read_only {
-            result += 0b1;
+        if let ArcDir::Archive(arc_props) = value.element_type {
+            if arc_props.read_only {
+                result += 0b1;
+            }
+            if arc_props.normal {
+                result += 1 << 7;
+            }
+            if arc_props.temporary {
+                result += 1 << 8;
+            }
+            if arc_props.sparse {
+                result += 1 << 9;
+            }
+            if arc_props.offline {
+                result += 1 << 12;
+            }
+            result += 1 << 5;
         }
         if value.hidden {
             result += 1 << 1;
@@ -158,32 +173,17 @@ impl From<Props> for u32 {
         if value.system {
             result += 1 << 2;
         }
-        if value.directory {
+        if let ArcDir::Directory = value.element_type {
             result += 1 << 4;
-        }
-        if value.archive {
-            result += 1 << 5;
         }
         if value.device {
             result += 1 << 6;
-        }
-        if value.normal {
-            result += 1 << 7;
-        }
-        if value.temporary {
-            result += 1 << 8;
-        }
-        if value.sparse {
-            result += 1 << 9;
         }
         if value.reparse {
             result += 1 << 10;
         }
         if value.compressed {
             result += 1 << 11;
-        }
-        if value.offline {
-            result += 1 << 12;
         }
         if value.not_content_indexed {
             result += 1 << 13;

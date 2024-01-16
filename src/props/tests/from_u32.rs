@@ -1,4 +1,4 @@
-use crate::Props;
+use crate::props::*;
 #[test]
 fn test_basic() {
     assert_eq!(Props::from(0), Props::default());
@@ -6,8 +6,13 @@ fn test_basic() {
 #[test]
 fn read_only() {
     let mut read_only = Props::default();
-    read_only.archive(true).unwrap();
-    read_only.read_only(true).unwrap();
+    read_only.change_element_type(ArcDir::Archive(ArchiveProps {
+        read_only: true,
+        normal: false,
+        temporary: false,
+        sparse: false,
+        offline: false,
+    }));
     assert_eq!(Props::from(1 + (1 << 5)), read_only);
 }
 #[test]
@@ -25,13 +30,19 @@ fn system() {
 #[test]
 fn directory() {
     let mut directory = Props::default();
-    directory.directory(true).unwrap();
+    directory.change_element_type(ArcDir::Directory);
     assert_eq!(Props::from(1 << 4), directory);
 }
 #[test]
 fn archive() {
     let mut archive = Props::default();
-    archive.archive(true).unwrap();
+    archive.change_element_type(ArcDir::Archive(ArchiveProps {
+        read_only: false,
+        normal: false,
+        temporary: false,
+        sparse: false,
+        offline: false,
+    }));
     assert_eq!(Props::from(1 << 5), archive);
 }
 #[test]
@@ -43,23 +54,37 @@ fn device() {
 #[test]
 fn normal() {
     let mut normal = Props::default();
-    normal.archive(true).unwrap();
-    normal.normal(true).unwrap();
+    normal.change_element_type(ArcDir::Archive(ArchiveProps {
+        read_only: false,
+        normal: true,
+        temporary: false,
+        sparse: false,
+        offline: false,
+    }));
     assert_eq!(Props::from((1 << 7) + (1 << 5)), normal);
 }
 #[test]
 fn temporary() {
     let mut temporary = Props::default();
-    temporary.archive(true).unwrap();
-    temporary.temporary(true).unwrap();
+    temporary.change_element_type(ArcDir::Archive(ArchiveProps {
+        read_only: false,
+        normal: false,
+        temporary: true,
+        sparse: false,
+        offline: false,
+    }));
     assert_eq!(Props::from((1 << 8) + (1 << 5)), temporary);
 }
 #[test]
 fn sparse() {
     let mut sparse = Props::default();
-    sparse.archive(true).unwrap();
-    sparse.sparse(true).unwrap();
-    assert_eq!(Props::from((1 << 9) + (1 << 5)), sparse);
+    sparse.change_element_type(ArcDir::Archive(ArchiveProps {
+        read_only: false,
+        normal: false,
+        temporary: false,
+        sparse: true,
+        offline: false,
+    }));
 }
 #[test]
 fn reparse() {
@@ -76,8 +101,13 @@ fn compressed() {
 #[test]
 fn offline() {
     let mut offline = Props::default();
-    offline.archive(true).unwrap();
-    offline.offline(true).unwrap();
+    offline.change_element_type(ArcDir::Archive(ArchiveProps {
+        read_only: false,
+        normal: false,
+        temporary: false,
+        sparse: false,
+        offline: true,
+    }));
     assert_eq!(Props::from((1 << 12) + (1 << 5)), offline);
 }
 #[test]
