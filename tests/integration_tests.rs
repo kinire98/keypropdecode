@@ -36,7 +36,7 @@ fn get_most_common_attributes() {
 #[cfg(windows)]
 fn readme_test() {
     let mut props = Props::default();
-    props.archive(true).unwrap();
+    props.change_element_type(ArcDir::Archive(ArchiveProps::default()));
     props.hidden(true);
     assert_eq!(Props::try_from(r"hidden_file_example.txt").unwrap(), props);
 }
