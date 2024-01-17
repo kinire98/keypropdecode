@@ -42,7 +42,6 @@ impl From<u32> for Props {
         }
         if value & ARCHIVE == ARCHIVE {
             let mut arc_props = ArchiveProps::default();
-            arc_props.normal = false;
             if value & READ_ONLY == READ_ONLY {
                 arc_props.read_only = true;
             }
