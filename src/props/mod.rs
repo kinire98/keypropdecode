@@ -38,7 +38,7 @@ pub enum ArcDir {
     Directory, // 16 -> bit 5
     Archive(ArchiveProps), // 32 -> bit 6
 }
-#[derive(Debug, PartialEq, PartialOrd, Eq, Ord, Clone, Copy)]
+#[derive(Debug, PartialEq, PartialOrd, Eq, Ord, Clone, Copy, Default)]
 pub struct ArchiveProps {
     read_only: bool, // 1 -> bit 1
     normal: bool,    // 128 -> bit 8
@@ -193,7 +193,7 @@ impl Props {
     /// Allows to change the normal state.
     pub fn normal(&mut self, normal: bool) -> Result<()> {
         let mut comp_arc_props = ArchiveProps::default();
-        comp_arc_props.normal = true;
+        comp_arc_props.normal = false;
         let comp_arc_props_2 = ArchiveProps::default();
         match self.element_type {
             ArcDir::Archive(mut arc_props) => {
