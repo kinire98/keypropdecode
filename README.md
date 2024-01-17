@@ -7,7 +7,8 @@ You can use this crate with different purposes:
 2. You can use a `PathBuf` with `keypropdecode::from_file()` to get the properties without needing to extract the properties integer manually
 3. Create an empty struct to change the properties as you please and get the integer with the properties you asigned with `Self.as_number()`
 The `Display` implementation of the struct return a `String` identical as the one that prints with `GetChild-Item` in PowerShell, which are the most commonly used.  
-For reference with all the file system element properties go to the [Microsoft File Attribute Constants Documentation](https://learn.microsoft.com/en-us/windows/win32/fileio/file-attribute-constants)
+For reference with all the file system element properties go to the [Microsoft File Attribute Constants Documentation](https://learn.microsoft.com/en-us/windows/win32/fileio/file-attribute-constants).  
+The implementation of the library uses enums to make invalid states unrepresentable.
 ## Example
 ```Rust
 use keypropdecode::Props;
