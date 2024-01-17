@@ -37,13 +37,7 @@ fn directory() {
 #[test]
 fn archive() {
     let mut props = Props::default();
-    props.change_element_type(props::ArcDir::Archive(props::ArchiveProps {
-        read_only: false,
-        normal: false,
-        temporary: false,
-        sparse: false,
-        offline: false,
-    }));
+    props.change_element_type(props::ArcDir::Archive(props::ArchiveProps::default()));
     let value: u32 = props.into();
     assert_eq!(value, 1 << 5);
 }
@@ -57,7 +51,10 @@ fn device() {
 #[test]
 fn normal() {
     let mut props = Props::default();
-    props.change_element_type(props::ArcDir::Archive(ArchiveProps::default()));
+    props.change_element_type(props::ArcDir::Archive(ArchiveProps {
+        normal: true,
+        ..Default::default()
+    }));
     let value: u32 = props.into();
     assert_eq!(value, (1 << 7) + (1 << 5));
 }

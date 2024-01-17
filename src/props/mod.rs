@@ -179,6 +179,7 @@ impl Props {
     /// use keypropdecode::props::*;
     /// let mut props = Props::default();
     /// props.change_element_type(ArcDir::Archive(ArchiveProps::default()));
+    /// props.normal(true);
     ///
     /// assert_eq!(props.is_normal(), Ok(true));
     /// ```
