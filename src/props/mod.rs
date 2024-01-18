@@ -202,8 +202,10 @@ impl Props {
     }
     /// Allows to change the normal state.
     pub fn normal(&mut self, normal: bool) -> Result<()> {
-        let mut comp_arc_props = ArchiveProps::default();
-        comp_arc_props.normal = true;
+        let comp_arc_props = ArchiveProps {
+            normal: true,
+            ..Default::default()
+        };
         let comp_arc_props_2 = ArchiveProps::default();
         match self.element_type {
             ArcDir::Archive(mut arc_props) => {
