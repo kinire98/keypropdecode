@@ -4,5 +4,7 @@
 
 /// The Error type for the crate
 pub mod error;
+/// The main module of the library
 pub mod props;
+/// The re-export of the main Struct of the library
 pub use props::Props;

@@ -5,6 +5,7 @@ mod tests;
 use crate::error::*;
 
 /// This struct is the one that gives you the desired behaviour.  
+///
 /// It implements the following traits:
 /// 1. Display for Props
 /// 2. From<u32> for Props
@@ -32,12 +33,20 @@ pub struct Props {
     recall_on_open: bool,        // 262144 -> bit 22
     recall_on_data_access: bool, // 4194304 -> bit 23
 }
+/// This enum stores the state of the file system element.  
+/// Because it can't be a file and a directory at the same time, an enum here makes the most sense.  
+/// Even so when it's a file it has some special properties, so that is hold in the enum variant of
+/// the file.
+/// Neither this enum or the struct that holds has any custom implementations, only the ones
+/// derived from macros
 #[derive(Debug, PartialEq, PartialOrd, Eq, Ord, Clone, Copy, Default)]
 pub enum ArcDir {
     #[default]
     Directory, // 16 -> bit 5
     Archive(ArchiveProps), // 32 -> bit 6
 }
+/// This struct  holds the values of the file-exclusive elements  
+/// It only has the implementation derived by the macros
 #[derive(Debug, PartialEq, PartialOrd, Eq, Ord, Clone, Copy, Default)]
 pub struct ArchiveProps {
     read_only: bool, // 1 -> bit 1
