@@ -36,13 +36,7 @@ fn directory() {
 #[test]
 fn archive() {
     let mut archive = Props::default();
-    archive.change_element_type(ArcDir::Archive(ArchiveProps {
-        read_only: false,
-        normal: false,
-        temporary: false,
-        sparse: false,
-        offline: false,
-    }));
+    archive.change_element_type(ArcDir::Archive(ArchiveProps::default()));
     assert_eq!(Props::from(1 << 5), archive);
 }
 #[test]
